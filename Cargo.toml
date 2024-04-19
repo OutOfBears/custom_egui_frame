@@ -1,0 +1,10 @@
+[package]
+name = "custom_egui_frame"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = "0.26.2"
+egui = "0.26.2"
+egui_extras = { version = "0.26.2", features = ["all_loaders"] }
+image = { version = "0.24", features = ["jpeg", "png"] }
