@@ -3,7 +3,7 @@ name = "custom_egui_frame"
 description = "A custom window frame for egui windows"
 license = "MIT"
 authors = ["Jack Fox <0xdeadbeef1@gmail.com>"]
-version = "0.1.2"
+version = "0.1.4"
 edition = "2021"
 
 [dependencies]
