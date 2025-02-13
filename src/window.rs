@@ -39,7 +39,7 @@ impl<'t> Window<'t> {
         self
     }
 
-    pub fn paint(self, ctx: &egui::Context) -> Response {
+    pub fn show(self, ctx: &egui::Context, contents: impl FnOnce(&mut Ui)) -> Response {
         let maximized = ctx.input(|o| o.viewport().maximized.unwrap_or(false));
         let stroke = ctx.style().visuals.widgets.noninteractive.bg_stroke;
 
@@ -80,10 +80,8 @@ impl<'t> Window<'t> {
 
             title_bar.ui(ui);
 
-            let mut contents = ui.child_ui(content_rect, *ui.layout());
-            if let Some(contents_callback) = self.contents {
-                contents_callback(&mut contents);
-            }
+            let mut child_contents = ui.child_ui(content_rect, *ui.layout());
+            contents(&mut child_contents);
         });
 
         panel.response
