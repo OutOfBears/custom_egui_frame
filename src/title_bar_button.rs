@@ -1,4 +1,4 @@
-use egui::{Button, Color32, Image, ImageSource, Rect, Response, Rounding, Ui, Vec2, Widget};
+use egui::{Button, Color32, Image, Rect, Response, Rounding, Ui, Vec2, Widget};
 
 pub struct TitleBarButton<'t> {
     size: Vec2,
@@ -6,7 +6,7 @@ pub struct TitleBarButton<'t> {
     hover_color: Option<Color32>,
     hover_text: Option<&'static str>,
     rounding: Option<Rounding>,
-    icon: Option<ImageSource<'t>>,
+    icon: Option<&'t Image<'t>>,
     icon_color: Option<Color32>,
     icon_hover_color: Option<Color32>,
     icon_size: Option<Vec2>,
@@ -27,7 +27,7 @@ impl<'t> TitleBarButton<'t> {
         }
     }
 
-    pub fn with_icon(mut self, icon: ImageSource<'t>, size: Vec2) -> Self {
+    pub fn with_icon(mut self, icon: &'t Image<'t>, size: Vec2) -> Self {
         self.icon = Some(icon);
         self.icon_size = Some(size);
         self
@@ -108,7 +108,8 @@ impl<'t> Widget for TitleBarButton<'t> {
         let icon_hover_color = self.icon_hover_color.unwrap_or(Color32::WHITE);
 
         if let Some(icon) = icon {
-            let image = Image::new(icon)
+            let image = icon
+                .clone()
                 .max_size(icon_size)
                 .tint(if response.hovered() {
                     icon_hover_color

@@ -5,7 +5,6 @@ use super::title_bar::TitleBar;
 pub struct Window<'t> {
     title: Option<&'static str>,
     icon: Option<ImageSource<'t>>,
-    contents: Option<Box<dyn FnOnce(&mut Ui) + 't>>,
     maximize: bool,
 }
 
@@ -14,7 +13,6 @@ impl<'t> Window<'t> {
         Self {
             title: None,
             icon: None,
-            contents: None,
             maximize: true,
         }
     }
@@ -34,15 +32,7 @@ impl<'t> Window<'t> {
         self
     }
 
-    pub fn with_contents<F>(mut self, contents: F) -> Self
-    where
-        F: FnOnce(&mut Ui) + 't,
-    {
-        self.contents = Some(Box::new(contents));
-        self
-    }
-
-    pub fn show(self, ctx: &egui::Context, contents: impl FnOnce(&mut Ui)) -> Response {
+    pub fn show(&mut self, ctx: &egui::Context, contents: impl FnOnce(&mut Ui)) -> Response {
         let maximized = ctx.input(|o| o.viewport().maximized.unwrap_or(false));
         let stroke = ctx.style().visuals.widgets.noninteractive.bg_stroke;
 
@@ -73,7 +63,7 @@ impl<'t> Window<'t> {
 
             let mut title_bar = TitleBar::new(title_bar_rect).with_maximize(self.maximize);
 
-            if let Some(icon) = self.icon {
+            if let Some(icon) = &self.icon {
                 title_bar = title_bar.with_icon(icon);
             }
 

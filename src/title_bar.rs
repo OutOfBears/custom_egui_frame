@@ -7,7 +7,11 @@ use super::title_bar_button::TitleBarButton;
 
 pub struct TitleBar<'t> {
     title: Option<&'static str>,
-    icon: Option<ImageSource<'t>>,
+    icon: Option<Image<'t>>,
+    restore_icon: Image<'t>,
+    maximize_icon: Image<'t>,
+    minimize_icon: Image<'t>,
+    close_icon: Image<'t>,
     maximize: bool,
     rect: Rect,
 }
@@ -18,6 +22,10 @@ impl<'t> TitleBar<'t> {
             title: None,
             icon: None,
             maximize: true,
+            close_icon: Image::new(egui::include_image!("../assets/close.svg")),
+            minimize_icon: Image::new(egui::include_image!("../assets/minimize.svg")),
+            maximize_icon: Image::new(egui::include_image!("../assets/maximize.svg")),
+            restore_icon: Image::new(egui::include_image!("../assets/restore.svg")),
             rect,
         }
     }
@@ -27,8 +35,8 @@ impl<'t> TitleBar<'t> {
         self
     }
 
-    pub fn with_icon(mut self, icon: ImageSource<'t>) -> Self {
-        self.icon = Some(icon);
+    pub fn with_icon(mut self, icon: &'t ImageSource<'t>) -> Self {
+        self.icon = Some(Image::new(icon.clone()));
         self
     }
 
@@ -46,9 +54,6 @@ impl<'t> TitleBar<'t> {
         let button_size = Vec2::new(44.0, 30.0);
         let icon_size = Vec2::new(11.0, 22.0);
 
-        let close_icon = egui::include_image!("../assets/close.svg");
-        let minimize_icon = egui::include_image!("../assets/minimize.svg");
-
         let is_maximized = ui.input(|i| i.viewport().maximized.unwrap_or(false));
 
         let close_button = TitleBarButton::new(button_size)
@@ -58,7 +63,7 @@ impl<'t> TitleBar<'t> {
                 ne: 5.0,
                 ..Default::default()
             })
-            .with_icon(close_icon, icon_size)
+            .with_icon(&self.close_icon, icon_size)
             .with_hover_color(Color32::RED)
             .with_hover_text("Close the window");
 
@@ -67,17 +72,14 @@ impl<'t> TitleBar<'t> {
         }
 
         if self.maximize {
-            let restore_icon = egui::include_image!("../assets/restore.svg");
-            let maximize_icon = egui::include_image!("../assets/maximize.svg");
-
             let restore_maximize_button = {
                 if is_maximized {
                     TitleBarButton::new(button_size)
-                        .with_icon(restore_icon, icon_size)
+                        .with_icon(&self.restore_icon, icon_size)
                         .with_hover_text("Restore window")
                 } else {
                     TitleBarButton::new(button_size)
-                        .with_icon(maximize_icon, icon_size)
+                        .with_icon(&self.maximize_icon, icon_size)
                         .with_hover_text("Maximize window")
                 }
             };
@@ -89,7 +91,7 @@ impl<'t> TitleBar<'t> {
         }
 
         let minimize_button = TitleBarButton::new(button_size)
-            .with_icon(minimize_icon, icon_size)
+            .with_icon(&self.minimize_icon, icon_size)
             .with_hover_text("Minimize the window");
 
         if minimize_button.ui(ui).clicked() {
@@ -117,7 +119,7 @@ impl<'t> Widget for TitleBar<'t> {
 
         if let Some(icon) = &self.icon {
             // CHANGE ME!!!
-            Image::new(icon.clone()).paint_at(
+            icon.paint_at(
                 ui,
                 Rect::from_center_size(rect.left_center() + vec2(16.0, 0.0), Vec2::splat(16.0)),
             );
