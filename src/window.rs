@@ -5,7 +5,7 @@ use super::title_bar::TitleBar;
 pub struct Window<'t> {
     title: Option<&'static str>,
     icon: Option<ImageSource<'t>>,
-    contents: Option<Box<dyn FnOnce(&mut Ui)>>,
+    contents: Option<Box<dyn FnOnce(&mut Ui) + 't>>,
     maximize: bool,
 }
 
@@ -34,7 +34,10 @@ impl<'t> Window<'t> {
         self
     }
 
-    pub fn with_contents(mut self, contents: impl FnOnce(&mut Ui) + 'static) -> Self {
+    pub fn with_contents<F>(mut self, contents: F) -> Self
+    where
+        F: FnOnce(&mut Ui) + 't,
+    {
         self.contents = Some(Box::new(contents));
         self
     }
