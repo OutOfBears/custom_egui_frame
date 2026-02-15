@@ -13,6 +13,7 @@ pub struct TitleBar<'t> {
     minimize_icon: Image<'t>,
     close_icon: Image<'t>,
     maximize: bool,
+    can_drag: bool,
     rect: Rect,
 }
 
@@ -26,8 +27,14 @@ impl<'t> TitleBar<'t> {
             minimize_icon: Image::new(egui::include_image!("../assets/minimize.svg")),
             maximize_icon: Image::new(egui::include_image!("../assets/maximize.svg")),
             restore_icon: Image::new(egui::include_image!("../assets/restore.svg")),
+            can_drag: true,
             rect,
         }
+    }
+
+    pub fn with_can_drag(mut self, can_drag: bool) -> Self {
+        self.can_drag = can_drag;
+        self
     }
 
     pub fn with_title(mut self, title: &'static str) -> Self {
@@ -125,7 +132,7 @@ impl<'t> Widget for TitleBar<'t> {
             );
         }
 
-        if response.is_pointer_button_down_on() {
+        if self.can_drag && response.is_pointer_button_down_on() {
             ui.ctx().send_viewport_cmd(ViewportCommand::StartDrag);
         }
 

@@ -1,10 +1,13 @@
 use egui::{CentralPanel, Frame, ImageSource, Response, Stroke, Ui, Widget};
 
+use crate::resize::{pointer_in_any, resize_borders_ui, top_resize_hot_zones};
+
 use super::title_bar::TitleBar;
 
 pub struct Window<'t> {
     title: Option<&'static str>,
     icon: Option<ImageSource<'t>>,
+    resize: bool,
     maximize: bool,
 }
 
@@ -13,6 +16,7 @@ impl<'t> Window<'t> {
         Self {
             title: None,
             icon: None,
+            resize: true,
             maximize: true,
         }
     }
@@ -32,6 +36,11 @@ impl<'t> Window<'t> {
         self
     }
 
+    pub fn with_resize(mut self, resize: bool) -> Self {
+        self.resize = resize;
+        self
+    }
+
     pub fn show(&mut self, ctx: &egui::Context, contents: impl FnOnce(&mut Ui)) -> Response {
         let maximized = ctx.input(|o| o.viewport().maximized.unwrap_or(false));
         let stroke = ctx.style().visuals.widgets.noninteractive.bg_stroke;
@@ -47,6 +56,10 @@ impl<'t> Window<'t> {
         let panel = CentralPanel::default().frame(panel_frame).show(ctx, |ui| {
             let app_rect = ui.max_rect();
 
+            let maximized = ctx.input(|o| o.viewport().maximized.unwrap_or(false));
+            resize_borders_ui(ctx, ui, app_rect, !maximized);
+
+            let hot = top_resize_hot_zones(app_rect);
             let title_bar_height = 32.0;
             let title_bar_rect = {
                 let mut rect = app_rect;
@@ -61,7 +74,10 @@ impl<'t> Window<'t> {
             }
             .shrink(4.0);
 
-            let mut title_bar = TitleBar::new(title_bar_rect).with_maximize(self.maximize);
+            let draggable = !pointer_in_any(ctx, &hot);
+            let mut title_bar = TitleBar::new(title_bar_rect)
+                .with_maximize(self.maximize)
+                .with_can_drag(draggable);
 
             if let Some(icon) = &self.icon {
                 title_bar = title_bar.with_icon(icon);
