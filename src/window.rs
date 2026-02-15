@@ -38,7 +38,7 @@ impl<'t> Window<'t> {
 
         let panel_frame = Frame {
             fill: ctx.style().visuals.window_fill(),
-            rounding: if maximized { 0.0.into() } else { 5.0.into() },
+            corner_radius: if maximized { 0.0.into() } else { 5.0.into() },
             stroke: Stroke::new(if maximized { 0.0 } else { 1.0 }, stroke.color),
             outer_margin: if maximized { 0.0.into() } else { 2.0.into() },
             ..Default::default()
@@ -73,7 +73,7 @@ impl<'t> Window<'t> {
 
             title_bar.ui(ui);
 
-            let mut child_contents = ui.child_ui(content_rect, *ui.layout());
+            let mut child_contents = ui.child_ui(content_rect, *ui.layout(), None);
             contents(&mut child_contents);
         });
 

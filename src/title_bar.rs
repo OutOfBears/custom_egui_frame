@@ -60,7 +60,7 @@ impl<'t> TitleBar<'t> {
             .with_color(Color32::from_rgba_unmultiplied(255, 0, 0, 100))
             .with_hover_color(Color32::from_rgba_unmultiplied(255, 0, 0, 255))
             .with_rounding(Rounding {
-                ne: 5.0,
+                ne: 5,
                 ..Default::default()
             })
             .with_icon(&self.close_icon, icon_size)
